@@ -30,7 +30,7 @@ Route::group(['middleware' => 'admin', 'prefix' => 'ooadmin'], function () {
     Route::resource('system-modules', 'Admin\SystemModulesController');
     Route::resource('system-users', 'Admin\SystemUsersController');
     Route::resource('system-roles', 'Admin\SystemRolesController');
-    Route::resource('configs', 'Admin\ConfigsController');
+    Route::resource('configs', 'Admin\PropertyDataController');
     Route::resource('news', 'Admin\NewsController');
     Route::resource('categories-news', 'Admin\CategoriesNewsController');
 

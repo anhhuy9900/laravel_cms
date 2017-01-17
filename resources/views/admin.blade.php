@@ -94,7 +94,7 @@
                         <!--<img class="nav-user-photo" src="public/avatars/user.jpg" alt="Jason's Photo" />-->
 						<span class="user-info">
 							<small>Welcome,</small>
-                            {{ 'Admin' }}
+                            {{ App\Helpers\AdminHelpers::admin_get_value_current_user('username') }}
 						</span>
 
                         <i class="ace-icon fa fa-caret-down"></i>

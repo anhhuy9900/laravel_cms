@@ -67,6 +67,12 @@ class AdminHelpers
         return NULL;
     }
 
+    public static function admin_get_value_current_user($field = 'id'){
+        $helper = new AdminHelpers();
+        $current_user = $helper->admin_get_current_user_login();
+        return $current_user->$field;
+    }
+
 
     function admin_authenticaion($user_data, $remember){
         $token = str_random(40);
@@ -93,7 +99,7 @@ class AdminHelpers
         return TRUE;
     }
 
-    function admin_user_session_login(){
+    function admin_check_user_session_login(){
         $valid = FALSE;
         if (Cookie::has('remember_me') && Cookie::get('remember_me'))
         {
@@ -108,7 +114,7 @@ class AdminHelpers
     }
 
     function admin_check_valid_login(){
-        if(!$this->admin_user_session_login()){
+        if(!$this->admin_check_user_session_login()){
             /*$url = route('admin_login');
             redirect($url);
             exit();*/
@@ -213,16 +219,7 @@ class AdminHelpers
     }
 
     public function admin_get_current_module($module_alias, $field = ''){
-        $repository = $this->em->getRepository('BooBundle:SystemModulesEntity');
-        $query = $repository->createQueryBuilder('pk');
-        $query->select("pk");
-        $query->where('pk.module_alias LIKE :module_alias')->setParameter('module_alias', $module_alias);
-        $result = $query->getQuery()->getArrayResult();
-        if(!empty($result)){
-            $data =  $this->global_helper_service->__convert_result_to_object($result);
-            return !$field ? $data : $data->$field;
-        }
-        return 0;
+        return '';
     }
 
     public function admin_helper_filter_role_module($action = 'view'){

@@ -23,9 +23,13 @@ class AdminServiceProvider extends ServiceProvider
         Validator::extend('admin_check_valid_user', function ($attribute, $value, $parameters, $validator) {
             $request = request();
             $helper = new AdminHelpers();
+            $valid = FALSE;
             if($helper->admin_check_valid_user($request->username, $request->password))
-                return true;
-            return false;
+            {
+                $valid = TRUE;
+            }
+
+            return $valid;
         });
 
         //if(RequestUrl::is('ooadmin/*')){

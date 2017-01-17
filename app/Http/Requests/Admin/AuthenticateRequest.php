@@ -24,9 +24,8 @@ class AuthenticateRequest extends Request
     public function rules()
     {
         return [
-            'username' => 'required|exists:system_users',
-            'password'  => 'required',
-            'username'  => 'admin_check_valid_user'
+            'username' => 'required|exists:system_users|admin_check_valid_user',
+            'password'  => 'required'
         ];
     }
 
