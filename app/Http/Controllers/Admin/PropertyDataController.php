@@ -10,6 +10,7 @@ use App\Models\PropertyDataModel;
 use App\Http\Requests\Admin\PropertyDataRequest;
 use Carbon\Carbon;
 use DB;
+use Form;
 
 class PropertyDataController extends AdminController
 {
@@ -57,11 +58,13 @@ class PropertyDataController extends AdminController
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        $id = 0;
-        $result = array();
-        return view('admin.property_data.create', compact('id', 'result'));
+
+        $this->data['id'] = 0;
+        $this->data['result'] = array();
+        $this->data['form_element_type'] = $this->render_element_property_type($request);
+        return view('admin.property_data.create')->with($this->data);
     }
 
     /**
@@ -74,6 +77,7 @@ class PropertyDataController extends AdminController
     {
 
         $request['key'] = toSlug($request['key']);
+        $request['updated_date'] = Carbon::now()->timestamp;
         $request['created_date'] = Carbon::now()->timestamp;
         PropertyDataModel::create($request->all());
 
@@ -100,10 +104,13 @@ class PropertyDataController extends AdminController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
         $result = PropertyDataModel::where('id', $id)->first();
-        return view('admin.property_data.edit',compact('result','id'));
+        $this->data['id'] = $id;
+        $this->data['result'] = $result;
+        $this->data['form_element_type'] = $this->render_element_property_type($request, $result->value);
+        return view('admin.property_data.edit')->with($this->data);
     }
 
     /**
@@ -119,6 +126,7 @@ class PropertyDataController extends AdminController
         $arr_update = array(
             'key' => toSlug($request['key']),
             'value' => $request['value'],
+            'type' => $request['type'],
             'status' => $request['status'],
             'updated_date' => Carbon::now()->timestamp
         );
@@ -167,6 +175,29 @@ class PropertyDataController extends AdminController
         );
 
         return $this->admin_helpers->admin_handle_element_form_filter($array_filters);
+    }
+
+
+    /*
+     * This function used to render element form for property value
+     */
+    private function render_element_property_type($request, $value = ''){
+        switch($request->input('type')){
+            case 'textfield':
+                $form_element = Form::text('value', $value, ['class'  => 'col-xs-10 col-sm-5', 'data' => 'value', 'placeholder'=> 'Value']);
+                break;
+            case 'textarea':
+                $form_element = Form::textarea('value', $value, ['size' => '200x5', 'class'  => 'col-xs-10 col-sm-5', 'data' => 'description', 'placeholder'=> 'Value']);
+                break;
+            case 'editor':
+                $form_element = Form::textarea('value', $value, ['size' => '5x5',' class'  => 'col-xs-10 col-sm-5 ckeditor', 'data' => 'content']);
+                break;
+            default:
+                $form_element = Form::text('value', $value, ['class'  => 'col-xs-10 col-sm-5', 'data' => 'value', 'placeholder'=> 'Value']);
+                break;
+        }
+        
+        return $form_element;
     }
 
 }

@@ -24,10 +24,8 @@ class PropertyDataRequest extends Request
     public function rules()
     {
         return [
-            'type_config' => 'required',
-            'title_config' => 'required',
-            'key_config'  => 'required',
-           // 'value_config'  => 'required'
+            'key' => 'required',
+            'value' => 'required',
         ];
     }
 }

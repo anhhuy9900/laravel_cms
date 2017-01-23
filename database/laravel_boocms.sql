@@ -68,13 +68,17 @@ DROP TABLE IF EXISTS `property_data`;
 CREATE TABLE `property_data` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `key` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `value` text,
+  `value` text CHARACTER SET utf8,
+  `type` varchar(20) CHARACTER SET utf8 DEFAULT NULL,
   `status` smallint(1) NOT NULL DEFAULT '1',
+  `updated_date` int(10) NOT NULL DEFAULT '0',
   `created_date` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 TRUNCATE `property_data`;
+INSERT INTO `property_data` (`id`, `key`, `value`, `type`, `status`, `updated_date`, `created_date`) VALUES
+(2,	'asfasfas',	'<p>Sở Giao th&ocirc;ng Vận tải TP.HCM vừa th&ocirc;ng b&aacute;o ph&acirc;n luồng lại tại một số tuyến đường trung t&acirc;m quận 1, để phục vụ việc thi c&ocirc;ng đường hoa v&agrave; s&aacute;ch Tết Đinh Dậu.</p>\r\n',	'textfield',	1,	1484761994,	1484761889);
 
 DROP TABLE IF EXISTS `system_logs`;
 CREATE TABLE `system_logs` (
@@ -112,7 +116,7 @@ CREATE TABLE `system_modules` (
   `updated_date` int(10) NOT NULL DEFAULT '0',
   `created_date` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 
 TRUNCATE `system_modules`;
 INSERT INTO `system_modules` (`id`, `parent_id`, `module_name`, `module_alias`, `module_type`, `module_status`, `module_order`, `module_permission`, `updated_date`, `created_date`) VALUES
@@ -122,7 +126,8 @@ INSERT INTO `system_modules` (`id`, `parent_id`, `module_name`, `module_alias`, 
 (5,	0,	'System Users',	'system-users',	NULL,	1,	3,	0,	1483378443,	1468346119),
 (6,	1,	'News',	'news',	NULL,	1,	2,	0,	1483378830,	1468572183),
 (7,	1,	'Categories News',	'categories-news',	NULL,	1,	1,	0,	1483378780,	1469357417),
-(8,	0,	'System Modules',	'system-modules',	NULL,	1,	0,	0,	1483371939,	1483371939);
+(8,	0,	'System Modules',	'system-modules',	NULL,	1,	0,	0,	1483371939,	1483371939),
+(9,	0,	'Manage Property Data',	'property-data',	NULL,	1,	4,	1,	1484756735,	1484756735);
 
 DROP TABLE IF EXISTS `system_roles`;
 CREATE TABLE `system_roles` (
@@ -201,4 +206,4 @@ INSERT INTO `users` (`id`, `fullname`, `email`, `password`, `phone`, `address`, 
 (10,	'asasfas',	'fafasfas@yahoo.com',	'01dcd279c7ce6e0c294d94bb61839681c35f50d0184183d0cd5b2359821df0de',	'12345678',	'asfasfasfas',	1,	'4c94d664acdd768f9edb1838b2b0c06c',	0,	0,	1474196715),
 (11,	'asfasfa',	'safasfas@yahoo.com',	'01dcd279c7ce6e0c294d94bb61839681c35f50d0184183d0cd5b2359821df0de',	'12345678',	'kjhkjhkhkj',	1,	'decb66b6ba898723d4ab2ca075b55e6a',	0,	0,	1474196761);
 
--- 2017-01-17 02:39:24
+-- 2017-01-23 02:33:54

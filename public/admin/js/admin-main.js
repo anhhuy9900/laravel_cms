@@ -11,6 +11,7 @@ var AdminMain = window.AdminMain || {};
             AdminMain.Func.show_left_menu_active();
             AdminMain.Func.action_delete_record();
             AdminMain.Func.admin_export_data();
+            AdminMain.Func.admin_filter_type_for_property();
 
             setTimeout(function(){
                 $(".alert-success").slideUp();
@@ -35,7 +36,7 @@ var AdminMain = window.AdminMain || {};
                      var end_date = Date.parse(end) / 1000;
                      if(start_date > 0 && end_date > 0){
                      var value = start_date + '-' + end_date;
-                     var redirect_url = AdminMain.Func.generate_url_hande_filter('date_range', value);
+                     var redirect_url = AdminMain.Func.generate_url_handle_filter('date_range', value);
                      window.location.href = redirect_url;
                      }*/
 
@@ -116,7 +117,7 @@ var AdminMain = window.AdminMain || {};
         admin_submit_limit_records : function(){
             /*$("#show_record_num").on('change', function(){
                 var limit = $(this).val();
-                var redirect_url = AdminMain.Func.generate_url_hande_filter('lm', limit);
+                var redirect_url = AdminMain.Func.generate_url_handle_filter('lm', limit);
                 window.location.href = redirect_url;
             });*/
         },
@@ -126,7 +127,7 @@ var AdminMain = window.AdminMain || {};
                 var keyCode = e.which;
                 if (keyCode == 13) {
                     var key = $(this).val();
-                    var redirect_url = AdminMain.Func.generate_url_hande_filter('key', key);
+                    var redirect_url = AdminMain.Func.generate_url_handle_filter('key', key);
                     window.location.href = redirect_url;
                 }
             });*/
@@ -136,7 +137,7 @@ var AdminMain = window.AdminMain || {};
             if($(".ad-export-data").length > 0 ){
                 $(".ad-export-data").on('click',function(){
                     var data_type = $(this).data('type');
-                    var redirect_url = AdminMain.Func.generate_url_hande_filter('report', data_type);
+                    var redirect_url = AdminMain.Func.generate_url_handle_filter('report', data_type);
                     window.location.href = redirect_url;
                 });
             }
@@ -158,7 +159,7 @@ var AdminMain = window.AdminMain || {};
             return results == null ? null : results[1];
         },
 
-        generate_url_hande_filter : function(str_type, value){
+        generate_url_handle_filter : function(str_type, value){
             var pathname = $(location).attr('href');
             var parameter_url, redirect_url;
             if(pathname.indexOf(str_type + '=') == -1){
@@ -316,6 +317,16 @@ var AdminMain = window.AdminMain || {};
                 $("#form-delete-item-"+id).submit();
             });
 
+        },
+
+        admin_filter_type_for_property : function(){
+            console.log("debug :");
+            $("#property-type").on('change', function(){
+                var value = $(this).val();
+                console.log("value :"+value);
+                var redirect_url = AdminMain.Func.generate_url_handle_filter('type', value);
+                window.location.href = redirect_url;
+            });
         }
 
     };

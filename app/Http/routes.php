@@ -33,6 +33,7 @@ Route::group(['middleware' => 'admin', 'prefix' => 'ooadmin'], function () {
     Route::resource('configs', 'Admin\PropertyDataController');
     Route::resource('news', 'Admin\NewsController');
     Route::resource('categories-news', 'Admin\CategoriesNewsController');
+    Route::resource('property-data', 'Admin\PropertyDataController');
 
     Route::post('backend/upload_files', 'Admin\AdminController@upload_files');
     //Route::get('system_role/{id}/destroy', 'Admin\SystemRoleController@destroy');

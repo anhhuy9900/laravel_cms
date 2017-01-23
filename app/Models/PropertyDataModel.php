@@ -6,15 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use DB;
 
-class PropertyDatasModel extends Model
+class PropertyDataModel extends Model
 {
-    protected $table = 'categories_news';
+    protected $table = 'property_data';
 
     protected $fillable = [
         'id',
         'key',
         'value',
+        'type',
         'status',
+        'updated_date',
         'created_date'
     ];
 
