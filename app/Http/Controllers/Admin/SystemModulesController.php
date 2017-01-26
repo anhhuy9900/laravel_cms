@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\AdminHelpers;
 use App\Http\Controllers\Admin\AdminController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Request as RequestUrl;
@@ -60,7 +61,13 @@ class SystemModulesController extends AdminController
     {
         $id = 0;
         $result = array();
-        $list_modules = SystemModulesModel::lists('module_name','id');
+
+        $modules = SystemModulesModel::lists('module_name','id');
+        $helper = new AdminHelpers();
+        $list_modules = $helper->admin_convert_array_for_selectbox($modules);
+        $list_modules[0] = 'Choose module';
+        ksort($list_modules);
+
         return view('admin.system_modules.create', compact('id', 'result', 'list_modules'));
     }
 
@@ -105,7 +112,11 @@ class SystemModulesController extends AdminController
     public function edit($id)
     {
         $result = SystemModulesModel::where('id', $id)->first();
-        $list_modules = SystemModulesModel::lists('module_name','id');
+        $modules = SystemModulesModel::lists('module_name','id');
+        $helper = new AdminHelpers();
+        $list_modules = $helper->admin_convert_array_for_selectbox($modules);
+        $list_modules[0] = 'Choose module';
+        ksort($list_modules);
         return view('admin.system_modules.edit',compact('result','id', 'list_modules'));
     }
 

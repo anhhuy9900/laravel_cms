@@ -439,4 +439,38 @@ class AdminHelpers
         
     }
 
+  public function admin_convert_result_to_object($data, $check_list_array = 0){
+
+    $values = array();
+    if(!empty($data)){
+      //$count_records = count($data);
+      if($check_list_array == 0){
+        foreach($data as $key => $value){
+          $object = (object)$value;
+          $values[] = $object;
+        }
+        return $values;
+      } else {
+        $object = (object)$data[0];
+        return $object;
+      }
+
+    }
+    return NULL;
+  }
+
+
+  public function admin_convert_array_for_selectbox($data){
+
+    $values = array();
+    if(!empty($data)){
+      foreach($data as $key => $value){
+        $values[$key] = $value;
+      }
+      return $values;
+
+    }
+    return NULL;
+  }
+
 }

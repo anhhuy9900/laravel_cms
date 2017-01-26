@@ -120,7 +120,7 @@
 									</label>
 								</th>
 								<th>Variable Key</th>
-								<th>Value</th>
+								<th width="30%">Value</th>
 								<th class="hidden-480">Status</th>
 								<th class="{{ app('request')->input('order') ? app('request')->input("order") =='updated_date|DESC' ? 'sorting_desc' : 'sorting_asc' : 'sorting' }} admin_order_field" data-url="{{ App\Helpers\AdminHelpers::admin_render_data_url_order(app('request')->input("order")) }}">
 									<i class="ace-icon fa fa-clock-o bigger-110 hidden-480"></i>
