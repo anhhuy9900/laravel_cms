@@ -14,15 +14,16 @@ use App\Helper\AdminHelper;
 
 Route::get('/', function () {
     return view('welcome');
-    
 });
 
+Route::get('test/get-image-from-other-url', ['uses' => 'Front\TestController@test']);
+/*
+* This routes for admin
+*/
 Route::get('ooadmin/login', ['as' => 'admin_login', 'uses' => 'Admin\AuthenticateController@login']);
 Route::post('ooadmin/post_login', ['as' => 'admin_post_login', 'uses' => 'Admin\AuthenticateController@post_login']);
 //Route::match(['get', 'post'], 'ooadmin/login', ['as' => 'admin_login', 'uses' => 'Admin\AuthenticateController@login']);
 Route::get('ooadmin/logout', ['as' => 'admin_logout', 'uses' => 'Admin\AuthenticateController@logout']);
-
-
 
 Route::group(['middleware' => 'admin', 'prefix' => 'ooadmin'], function () {
     Route::resource('', 'Admin\DashboardController');
