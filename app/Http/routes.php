@@ -16,7 +16,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('test/get-image-from-other-url', ['uses' => 'Front\TestController@test']);
+Route::get('test/get-image-from-other-url', ['uses' => 'Test\TestController@test']);
+Route::resource('api', 'API\APIController@api');
+
 /*
 * This routes for admin
 */
