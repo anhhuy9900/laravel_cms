@@ -16,6 +16,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('test', ['uses'  => 'Front\FrontController@test']);
 Route::get('test/get-image-from-other-url', ['uses' => 'Test\TestController@test']);
 Route::resource('api', 'API\APIController@api');
 
