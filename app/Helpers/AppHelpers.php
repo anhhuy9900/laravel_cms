@@ -86,7 +86,7 @@ if (!function_exists('__Newfolder')) {
 if (!function_exists('__resize_img')) {
     function __resize_img($bath_file = '', $width = 0, $height = 0) {
         $base64 = '';
-    	if(file_exists(base_path() .$bath_file)){
+    	if(file_exists(base_path() .$bath_file) && $bath_file){
             $img = Image::make(base_path() .$bath_file)->resize( $width, $height);
             $img->encode('jpg');
             $type = 'jpg';

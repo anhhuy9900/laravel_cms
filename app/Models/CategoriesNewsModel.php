@@ -13,27 +13,40 @@ class CategoriesNewsModel extends Model
     protected $fillable = [
         'id',
         'title',
+        'slug',
         'status',
         'update_date',
         'created_date'
     ];
 
 
-    public function setUpdatedAtAttribute($value)
+    public function setUpdatedAt($value)
     {
-        // to Disable updated_at
+       //Do-nothing
     }
 
-    public function setCreatedAtAttribute($value)
+    public function getUpdatedAtColumn()
     {
-        // to Disable created_at
+        //Do-nothing
     }
 
-    public function _get_list_datas($limit, $offset, $where = array(), $order = array('field'=>'id', 'by'=>'DESC')){
-        $query = DB::table($this->table)->select('*');
+    public function setCreatedAt($value)
+    {
+       //Do-nothing
+    }
+
+    public function getCreatedAtColumn()
+    {
+        //Do-nothing
+    }
+
+    public static function _get_list_datas($limit, $offset, $where = array(), $order = array('field'=>'id', 'by'=>'DESC'))
+    {
+        $obj = new CategoriesNewsModel;
+        $query = DB::table($obj->table)->select('*');
 
         if(isset($where['key']) && $where['key']) {
-            $like = "%" . $where['key'] ."%";
+            $like = '%' . $where['key'] .'%';
             $query->where('title', 'LIKE', $like);
 
         }

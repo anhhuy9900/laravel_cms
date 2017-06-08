@@ -43,8 +43,7 @@ class SystemUsersController extends AdminController
         $page_offset = $request->input('p') ? (int)$request->input('p') : 0;
         $offset = $page_offset > 0 ? ($page_offset - 1) * $limit : $page_offset * $limit;
 
-        $entity = new SystemUsersModel;
-        $record = $entity->_get_list_datas($limit, $offset, array('key' => $key, 'date_range' => $date_range), $arr_order);
+        $record = SystemUsersModel::_get_list_datas($limit, $offset, array('key' => $key, 'date_range' => $date_range), $arr_order);
 
         $this->data['results'] = $record['data'];
         $this->data['pagination'] = __pagination($record['total'], $page_offset, $limit, 3, $this->module_alias);
@@ -76,11 +75,15 @@ class SystemUsersController extends AdminController
      */
     public function store(SystemUsersRequest $request)
     {
-
-        $request['password'] = $this->helper->encode_password($request['password']);
-        $request['updated_date'] = Carbon::now()->timestamp;
-        $request['created_date'] = Carbon::now()->timestamp;
-        $item = SystemUsersModel::create($request->all());
+        $obj = new SystemUsersModel;
+        $obj->role_id = $request['role_id'];
+        $obj->username = $request['username'];
+        $obj->email = $request['email'];
+        $obj->password = $this->helper->encode_password($request['password']);
+        $obj->status = $request['status'];
+        $obj->updated_date = Carbon::now()->timestamp;
+        $obj->created_date = Carbon::now()->timestamp;
+        $obj->save();
 
         session()->flash('flash_message', 'New user has been created successfully');
         session()->flash('flash_message_important', true);
@@ -107,7 +110,7 @@ class SystemUsersController extends AdminController
      */
     public function edit($id)
     {
-        $result = SystemUsersModel::where('id', $id)->first();
+        $result = SystemUsersModel::find($id);
         $list_roles = SystemRolesModel::lists('role_name','id');
         return view('admin.system_users.edit',compact('id','list_roles','result'));
     }
@@ -121,18 +124,15 @@ class SystemUsersController extends AdminController
      */
     public function update(SystemUsersRequest $request, $id)
     {
-
-        $arr_update = array(
-            'role_id' => $request['role_id'],
-            'username' => $request['username'],
-            'email' => $request['email'],
-            'password' => $this->helper->encode_password($request['password']),
-            'status' => $request['status'],
-            'updated_date' => Carbon::now()->timestamp
-        );
-        $result = DB::table('system_users')
-            ->where('id', $id)
-            ->update($arr_update);
+        $obj = SystemUsersModel::find($id);;
+        $obj->role_id = $request['role_id'];
+        $obj->username = $request['username'];
+        $obj->email = $request['email'];
+        $obj->password = $this->helper->encode_password($request['password']);
+        $obj->status = $request['status'];
+        $obj->updated_date = Carbon::now()->timestamp;
+        $obj->created_date = Carbon::now()->timestamp;
+        $obj->save();
 
         return redirect('ooadmin/'.$this->module_alias);
     }
@@ -145,7 +145,8 @@ class SystemUsersController extends AdminController
      */
     public function destroy($id)
     {
-        DB::table('system_users')->where('id', '=', $id)->delete();
+        SystemUsersModel::destroy($id);
+
         session()->flash('flash_message', 'This item has been deleted');
         session()->flash('flash_message_important', true);
 

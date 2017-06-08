@@ -42,8 +42,7 @@ class NewsController extends AdminController
         $page_offset = $request->input('p') ? (int)$request->input('p') : 0;
         $offset = $page_offset > 0 ? ($page_offset - 1) * $limit : $page_offset * $limit;
 
-        $entity = new NewsModel;
-        $record = $entity->_get_list_datas($limit, $offset, array('key' => $key, 'date_range' => $date_range), $arr_order);
+        $record = NewsModel::_get_list_datas($limit, $offset, array('key' => $key, 'date_range' => $date_range), $arr_order);
 
         if($request->input('report')){
             $this->report($record['data']);
@@ -80,37 +79,43 @@ class NewsController extends AdminController
      */
     public function store(NewsRequest $request)
     {
-        $request['slug'] = toSlug($request['title']);
-        $request['updated_date'] = Carbon::now()->timestamp;
-        $request['created_date'] = Carbon::now()->timestamp;
+        $image = '';
         if($request->file('file')){
             $extension = $request->file('file')->getClientOriginalExtension(); // getting image extension
             $fileName = 'news_'.rand(11111,99999).time().'.'.$extension; 
             $file_path = __make_folder_upload('news');
             
             $request->file('file')->move( base_path() . $file_path, $fileName );
-            $request['image'] = $file_path.$fileName;
+            $image = $file_path.$fileName;
         }
 
-        //dd($request->all());
-
-        $item = NewsModel::create($request->all());
+        $obj = new NewsModel;
+        $obj->category_id = $request['category_id'];
+        $obj->title = $request['title'];
+        $obj->slug = toSlug($request['title']);
+        $obj->image = $image;
+        $obj->description = $request['description'];
+        $obj->content = $request['content'];
+        $obj->status = $request['status'];
+        $obj->updated_date = Carbon::now()->timestamp;
+        $obj->created_date = Carbon::now()->timestamp;
+        $obj->save();
 
         //insert gallery of news
-        if($item->id > 0){
+        if($obj->id > 0){
             if(!empty($request['lists_thumb'])){
                 $files_gallery = json_decode($request['lists_thumb']);
                 foreach ($files_gallery as $key => $value) {
                     if(!empty($value->file) && file_exists(base_path().$value->file)){
                         
-                        $this->_save_files_data($item->id, 'news', $value->file);
+                        $this->_save_files_data($obj->id, 'news', $value->file);
                     }
                 }
             }
 
             /* Save logs */
             $save_logs = array(
-                'nid' => $item->id,
+                'nid' => $obj->id,
                 'title' => $request['title'],
                 'type' => 'create'
             );
@@ -143,7 +148,7 @@ class NewsController extends AdminController
      */
     public function edit($id)
     {
-        $result = NewsModel::where('id', $id)->first();
+        $result = NewsModel::find($id);
         $list_files_gallery = '';
         if(!empty($result)){
             $where = array(
@@ -170,16 +175,7 @@ class NewsController extends AdminController
      */
     public function update(NewsRequest $request, $id)
     {
-
-        $arr_update = array(
-            'title'         => $request['title'],
-            'slug'          => toSlug($request['title']),
-            'description'   => $request['description'],
-            'content'       => $request['content'],
-            'status'        => $request['status'],
-            'updated_date'  => Carbon::now()->timestamp
-        );
-
+        $image = '';
         if($request->file('file')){
             $extension = $request->file('file')->getClientOriginalExtension(); // getting image extension
             $fileName = 'news_'.rand(11111,99999).time().'.'.$extension; 
@@ -187,13 +183,19 @@ class NewsController extends AdminController
 
             $request->file('file')->move( base_path() . $file_path, $fileName );
             $request['image'] = $file_path.$fileName;
-            $arr_update['image'] = $request['image'];
+            $image = $request['image'];
         }
 
-
-        $result = DB::table('news')
-            ->where('id', $id)
-            ->update($arr_update);
+        $obj = NewsModel::find($id);;
+        $obj->category_id = $request['category_id'];
+        $obj->title = $request['title'];
+        $obj->slug = toSlug($request['title']);
+        $obj->image = $image;
+        $obj->description = $request['description'];
+        $obj->content = $request['content'];
+        $obj->status = $request['status'];
+        $obj->updated_date = Carbon::now()->timestamp;
+        $obj->save();
 
         //insert gallery of news
         if($id > 0){
@@ -243,7 +245,7 @@ class NewsController extends AdminController
      */
     public function destroy($id)
     {
-        $result = NewsModel::where('id', $id)->first();
+        NewsModel::destroy($id);
 
         /* Save logs */
         $save_logs = array(
@@ -254,7 +256,6 @@ class NewsController extends AdminController
         $this->_save_logs_data($save_logs);
         /* End Save logs */
 
-        DB::table('news')->where('id', '=', $id)->delete();
         session()->flash('flash_message', 'This item has been deleted');
         session()->flash('flash_message_important', true);
 

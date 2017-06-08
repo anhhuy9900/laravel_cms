@@ -39,8 +39,8 @@ class CategoriesNewsController extends AdminController
         $page_offset = $request->input('p') ? (int)$request->input('p') : 0;
         $offset = $page_offset > 0 ? ($page_offset - 1) * $limit : $page_offset * $limit;
 
-        $entity = new CategoriesNewsModel;
-        $record = $entity->_get_list_datas($limit, $offset, array('key' => $key, 'date_range' => $date_range), $arr_order);
+
+        $record = CategoriesNewsModel::_get_list_datas($limit, $offset, array('key' => $key, 'date_range' => $date_range), $arr_order);
 
         $this->data['results'] = $record['data'];
         $this->data['pagination'] = __pagination($record['total'], $page_offset, $limit, 3, $this->module_alias);
@@ -71,11 +71,13 @@ class CategoriesNewsController extends AdminController
      */
     public function store(CategoriesNewsRequest $request)
     {   
-        $request['slug'] = toSlug($request['slug']);
-        $request['updated_date'] = Carbon::now()->timestamp;
-        $request['created_date'] = Carbon::now()->timestamp;
-        $item = CategoriesNewsModel::create($request->all());
-        //$item->save($request->all());
+        $obj = new CategoriesNewsModel;
+        $obj->title = $request['title'];
+        $obj->slug = toSlug($request['title']);
+        $obj->status = $request['status'];
+        $obj->updated_date = Carbon::now()->timestamp;
+        $obj->created_date = Carbon::now()->timestamp;
+        $obj->save();
 
         /*flash()->overlay('New role has been successfully created', 'Good Job');*/
         session()->flash('flash_message', 'New module has been created successfully');
@@ -103,7 +105,7 @@ class CategoriesNewsController extends AdminController
      */
     public function edit($id)
     {
-        $result = CategoriesNewsModel::where('id', $id)->first();
+        $result = CategoriesNewsModel::find($id);
         return view('admin.categories_news.edit',compact('result','id'));
     }
 
@@ -116,15 +118,12 @@ class CategoriesNewsController extends AdminController
      */
     public function update(CategoriesNewsRequest $request, $id)
     {
-        $arr_update = array(
-            'title' => $request['title'],
-            'slug' => toSlug($request['title']),
-            'status' => $request['status'],
-            'updated_date' => Carbon::now()->timestamp
-        );
-        $result = DB::table('categories_news')
-            ->where('id', $id)
-            ->update($arr_update);
+        $obj = CategoriesNewsModel::find($id);
+        $obj->title = $request['title'];
+        $obj->slug = toSlug($request['title']);
+        $obj->status = $request['status'];
+        $obj->updated_date = Carbon::now()->timestamp;
+        $obj->save();
 
         return redirect('ooadmin/'.$this->module_alias);
     }
@@ -137,7 +136,8 @@ class CategoriesNewsController extends AdminController
      */
     public function destroy($id)
     {
-        DB::table('categories_news')->where('id', '=', $id)->delete();
+        CategoriesNewsModel::destroy($id);
+
         session()->flash('flash_message', 'This item has been deleted');
         session()->flash('flash_message_important', true);
 

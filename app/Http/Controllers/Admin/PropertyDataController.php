@@ -41,8 +41,7 @@ class PropertyDataController extends AdminController
         $page_offset = $request->input('p') ? (int)$request->input('p') : 0;
         $offset = $page_offset > 0 ? ($page_offset - 1) * $limit : $page_offset * $limit;
 
-        $entity = new PropertyDataModel;
-        $record = $entity->_get_list_datas($limit, $offset, array('key' => $key, 'date_range' => $date_range), $arr_order);
+        $record = PropertyDataModel::_get_list_datas($limit, $offset, array('key' => $key, 'date_range' => $date_range), $arr_order);
 
         $this->data['results'] = $record['data'];
         $this->data['pagination'] = __pagination($record['total'], $page_offset, $limit, 3, $this->module_alias);
@@ -75,11 +74,14 @@ class PropertyDataController extends AdminController
      */
     public function store(PropertyDataRequest $request)
     {
-
-        $request['key'] = toSlug($request['key']);
-        $request['updated_date'] = Carbon::now()->timestamp;
-        $request['created_date'] = Carbon::now()->timestamp;
-        PropertyDataModel::create($request->all());
+        $obj = new PropertyDataModel;
+        $obj->key = toSlug($request['key']);
+        $obj->value = $request['value'];
+        $obj->type = $request['type'];
+        $obj->status = $request['status'];
+        $obj->updated_date = Carbon::now()->timestamp;
+        $obj->created_date = Carbon::now()->timestamp;
+        $obj->save();
 
         session()->flash('flash_message', 'New module has been created successfully');
         session()->flash('flash_message_important', true);
@@ -106,7 +108,7 @@ class PropertyDataController extends AdminController
      */
     public function edit(Request $request, $id)
     {
-        $result = PropertyDataModel::where('id', $id)->first();
+        $result = PropertyDataModel::find($id);
         $this->data['id'] = $id;
         $this->data['result'] = $result;
         $this->data['form_element_type'] = $this->render_element_property_type($request, $result->value);
@@ -122,17 +124,13 @@ class PropertyDataController extends AdminController
      */
     public function update(PropertyDataRequest $request, $id)
     {
-
-        $arr_update = array(
-            'key' => toSlug($request['key']),
-            'value' => $request['value'],
-            'type' => $request['type'],
-            'status' => $request['status'],
-            'updated_date' => Carbon::now()->timestamp
-        );
-        $result = DB::table('property_data')
-            ->where('id', $id)
-            ->update($arr_update);
+        $obj = PropertyDataModel::find($id);
+        $obj->key = toSlug($request['key']);
+        $obj->value = $request['value'];
+        $obj->type = $request['type'];
+        $obj->status = $request['status'];
+        $obj->updated_date = Carbon::now()->timestamp;
+        $obj->save();
 
         return redirect('ooadmin/'.$this->module_alias);
     }
@@ -145,7 +143,8 @@ class PropertyDataController extends AdminController
      */
     public function destroy($id)
     {
-        DB::table('property_data')->where('id', '=', $id)->delete();
+        CategoriesNewsModel::destroy($id);
+        
         session()->flash('flash_message', 'This item has been deleted');
         session()->flash('flash_message_important', true);
 

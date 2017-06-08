@@ -24,18 +24,29 @@ class SystemModulesModel extends Model
     ];
 
     
-    public function setUpdatedAtAttribute($value)
-	{
-	    // to Disable updated_at
-	}
+    public function setUpdatedAt($value)
+    {
+       //Do-nothing
+    }
 
-	public function setCreatedAtAttribute($value)
-	{
-	    // to Disable created_at
-	}
+    public function getUpdatedAtColumn()
+    {
+        //Do-nothing
+    }
 
-	public function _get_list_datas($limit, $offset, $where = array(), $order = array('field'=>'id', 'by'=>'DESC')){
-		$query = DB::table($this->table)->select('*');
+    public function setCreatedAt($value)
+    {
+       //Do-nothing
+    }
+
+    public function getCreatedAtColumn()
+    {
+        //Do-nothing
+    }
+
+	public static function _get_list_datas($limit, $offset, $where = array(), $order = array('field'=>'id', 'by'=>'DESC')){
+		$obj = new SystemModulesModel;
+		$query = DB::table($obj->table)->select('*');
 
 		if(isset($where['key']) && $where['key']) {
 			$like = "%" . $where['key'] ."%";
