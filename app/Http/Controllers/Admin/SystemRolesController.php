@@ -39,8 +39,7 @@ class SystemRolesController extends AdminController
         $page_offset = $request->input('p') ? (int)$request->input('p') : 0;
         $offset = $page_offset > 0 ? ($page_offset - 1) * $limit : $page_offset * $limit;
 
-        $entity = new SystemRolesModel;
-        $record = $entity->_get_list_datas($limit, $offset, array('key' => $key, 'date_range' => $date_range), $arr_order);
+        $record = SystemRolesModel::_get_list_datas($limit, $offset, array('key' => $key, 'date_range' => $date_range), $arr_order);
 
         $this->data['results'] = $record['data'];
         $this->data['pagination'] = __pagination($record['total'], $page_offset, $limit, 3, $this->module_alias);
@@ -61,6 +60,15 @@ class SystemRolesController extends AdminController
         $id = 0;
         $result = array();
         $list_modules = DB::table('system_modules')->get();
+        $list_modules = DB::table('system_modules')->get();
+        if(!empty($list_modules)){
+            foreach ($list_modules as $key => $value) {
+                $value->view = $this->check_role_system($id, $value->id, 'view');
+                $value->add = $this->check_role_system($id, $value->id, 'add');
+                $value->edit = $this->check_role_system($id, $value->id, 'edit');
+                $value->delete = $this->check_role_system($id, $value->id, 'delete');
+            }
+        }
         return view('admin.system_roles.create', compact('id', 'result' ,'list_modules'));
     }
 
@@ -72,13 +80,13 @@ class SystemRolesController extends AdminController
      */
     public function store(SystemRolesRequest $request)
     {
-        
-        $request['role_type'] = $this->filter_role_type($request['role_type']);
-        $request['updated_date'] = Carbon::now()->timestamp;
-        $request['created_date'] = Carbon::now()->timestamp;
-        $item = SystemRolesModel::create($request->all());
-
-        //$item->save($request->all());
+        $obj = new SystemRolesModel;
+        $obj->role_name = $request['role_name'];
+        $obj->role_type = $this->filter_role_type($request['role_type']);
+        $obj->role_status = $request['role_status'];
+        $obj->updated_date = Carbon::now()->timestamp;
+        $obj->created_date = Carbon::now()->timestamp;
+        $obj->save();
 
         session()->flash('flash_message', 'New role has been created successfully');
         session()->flash('flash_message_important', true);
@@ -105,7 +113,7 @@ class SystemRolesController extends AdminController
      */
     public function edit($id)
     {
-        $result = SystemRolesModel::where('id', $id)->first();
+        $result = SystemRolesModel::find($id);
         $list_modules = DB::table('system_modules')->get();
         if(!empty($list_modules)){
             foreach ($list_modules as $key => $value) {
@@ -115,13 +123,73 @@ class SystemRolesController extends AdminController
                 $value->delete = $this->check_role_system($id, $value->id, 'delete');
             }
         }
-        //dd($result_modules);
        
         return view('admin.system_roles.edit',compact('result','id','list_modules'));
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(SystemRolesRequest $request, $id)
+    {
+        $obj = SystemRolesModel::find($id);
+        $obj->role_name = $request['role_name'];
+        $obj->role_type = $this->filter_role_type($request['role_type']);
+        $obj->role_status = $request['role_status'];
+        $obj->updated_date = Carbon::now()->timestamp;
+        $obj->save();
+
+        return redirect('ooadmin/'.$this->module_alias);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        SystemRolesModel::destroy($id);
+
+        session()->flash('flash_message', 'This item has been deleted');
+        session()->flash('flash_message_important', true);
+
+        return redirect('ooadmin/'.$this->module_alias);
+    }
+
+
+    /*
+     * This function used to render form html filter for data
+     */
+    private function filter_options($request){
+        $key = $request->input('key') ? $request->input('key') : '';
+        $date_range = $request->input('date_range') ? $request->input('date_range') : '';
+
+        $array_filters = array();
+
+        $array_filters['key'] =  array(
+            'type' => 'input',
+            'title' => 'Search',
+            'default_value' => $key
+        );
+
+        $array_filters['date_range'] =  array(
+            'type' => 'date_picker',
+            'title' => 'Date Range',
+            'options' => '',
+            'default_value' => $date_range
+        );
+
+        return $this->admin_helpers->admin_handle_element_form_filter($array_filters);
+    }
+
     protected function check_role_system($role_id, $module_id, $action = ''){
-        $result_role_active = SystemRolesModel::where('id', $role_id)->first();
+        $result_role_active = SystemRolesModel::find($role_id);
         if(!empty($result_role_active)){
             if(!empty($result_role_active->role_type)){
                 $role_type = unserialize($result_role_active->role_type);
@@ -165,68 +233,5 @@ class SystemRolesController extends AdminController
             }
         }
         return serialize($role_type);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(SystemRolesRequest $request, $id)
-    {
-        $arr_update = array(
-            'role_name' => $request['role_name'],
-            'role_type' => $this->filter_role_type($request['role_type']),
-            'role_status' => $request['role_status'],
-            'updated_date' => Carbon::now()->timestamp
-        );
-        $result = DB::table('system_roles')
-            ->where('id', $id)
-            ->update($arr_update);
-
-        return redirect('ooadmin/'.$this->module_alias);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        DB::table('system_roles')->where('id', '=', $id)->delete();
-        session()->flash('flash_message', 'This item has been deleted');
-        session()->flash('flash_message_important', true);
-
-        return redirect('ooadmin/'.$this->module_alias);
-    }
-
-
-    /*
-     * This function used to render form html filter for data
-     */
-    private function filter_options($request){
-        $key = $request->input('key') ? $request->input('key') : '';
-        $date_range = $request->input('date_range') ? $request->input('date_range') : '';
-
-        $array_filters = array();
-
-        $array_filters['key'] =  array(
-            'type' => 'input',
-            'title' => 'Search',
-            'default_value' => $key
-        );
-
-        $array_filters['date_range'] =  array(
-            'type' => 'date_picker',
-            'title' => 'Date Range',
-            'options' => '',
-            'default_value' => $date_range
-        );
-
-        return $this->admin_helpers->admin_handle_element_form_filter($array_filters);
     }
 }

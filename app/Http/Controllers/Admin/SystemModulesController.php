@@ -40,8 +40,7 @@ class SystemModulesController extends AdminController
         $page_offset = $request->input('p') ? (int)$request->input('p') : 0;
         $offset = $page_offset > 0 ? ($page_offset - 1) * $limit : $page_offset * $limit;
 
-        $entity = new SystemModulesModel;
-        $record = $entity->_get_list_datas($limit, $offset, array('key' => $key, 'date_range' => $date_range), $arr_order);
+        $record = SystemModulesModel::_get_list_datas($limit, $offset, array('key' => $key, 'date_range' => $date_range), $arr_order);
 
         $this->data['results'] = $record['data'];
         $this->data['pagination'] = __pagination($record['total'], $page_offset, $limit, 3, $this->module_alias);
@@ -78,14 +77,17 @@ class SystemModulesController extends AdminController
      * @return \Illuminate\Http\Response
      */
     public function store(SystemModulesRequest $request)
-    {
-        $request['module_alias'] = toSlug($request['module_alias']);
-        $request['updated_date'] = Carbon::now()->timestamp;
-        $request['created_date'] = Carbon::now()->timestamp;
-        $item = SystemModulesModel::create($request->all());
-        //$item->save($request->all());
+    {   
+        $obj = new SystemModulesModel;
+        $obj->parent_id = $request['parent_id'];
+        $obj->module_name = $request['module_name'];
+        $obj->module_alias = toSlug($request['module_alias']);
+        $obj->module_order = $request['module_order'];
+        $obj->module_status = $request['module_status'];
+        $obj->updated_date = Carbon::now()->timestamp;
+        $obj->created_date = Carbon::now()->timestamp;
+        $obj->save();
 
-        /*flash()->overlay('New role has been successfully created', 'Good Job');*/
         session()->flash('flash_message', 'New module has been created successfully');
         session()->flash('flash_message_important', true);
         
@@ -111,7 +113,7 @@ class SystemModulesController extends AdminController
      */
     public function edit($id)
     {
-        $result = SystemModulesModel::where('id', $id)->first();
+        $result = SystemModulesModel::find($id);
         $modules = SystemModulesModel::lists('module_name','id');
         $helper = new AdminHelpers();
         $list_modules = $helper->admin_convert_array_for_selectbox($modules);
@@ -129,17 +131,14 @@ class SystemModulesController extends AdminController
      */
     public function update(SystemModulesRequest $request, $id)
     {
-        $arr_update = array(
-            'parent_id' => $request['parent_id'],
-            'module_name' => $request['module_name'],
-            'module_alias' => toSlug($request['module_alias']),
-            'module_order' => $request['module_order'],
-            'module_status' => $request['module_status'],
-            'updated_date' => Carbon::now()->timestamp
-        );
-        $result = DB::table('system_modules')
-            ->where('id', $id)
-            ->update($arr_update);
+        $obj = new SystemModulesModel;
+        $obj->parent_id = $request['parent_id'];
+        $obj->module_name = $request['module_name'];
+        $obj->module_alias = toSlug($request['module_alias']);
+        $obj->module_order = $request['module_order'];
+        $obj->module_status = $request['module_status'];
+        $obj->updated_date = Carbon::now()->timestamp;
+        $obj->save();
 
         return redirect('ooadmin/'.$this->module_alias);
     }
@@ -152,7 +151,8 @@ class SystemModulesController extends AdminController
      */
     public function destroy($id)
     {
-        DB::table('system_modules')->where('id', '=', $id)->delete();
+        SystemModulesModel::destroy($id);
+        
         session()->flash('flash_message', 'This item has been deleted');
         session()->flash('flash_message_important', true);
 

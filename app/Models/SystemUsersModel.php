@@ -63,38 +63,49 @@ class SystemUsersModel extends Model  implements AuthenticatableContract,
 
     }
 
-    public function setUpdatedAtAttribute($value)
-	{
-	    // to Disable updated_at
-	}
+    public function getRoleName($role_id){
+        return SystemRole::where('role_id', $role_id)->first()->role_name;
+    }
 
-	public function setCreatedAtAttribute($value)
-	{
-	    // to Disable created_at
-	}
+    public function setUpdatedAt($value)
+    {
+       //Do-nothing
+    }
 
-	public function getRoleName($role_id){
-		return SystemRole::where('role_id', $role_id)->first()->role_name;
-	}
+    public function getUpdatedAtColumn()
+    {
+        //Do-nothing
+    }
 
+    public function setCreatedAt($value)
+    {
+       //Do-nothing
+    }
 
-    public function _get_list_datas($limit, $offset, $where = array(), $order = array('field'=>'id', 'by'=>'DESC')){
-        $query = DB::table($this->table);
-        $query->select('system_users.*', 'system_roles.role_name');
-        $query->leftJoin('system_roles', 'system_users.role_id', '=', 'system_roles.id');
+    public function getCreatedAtColumn()
+    {
+        //Do-nothing
+    }
+
+    public static function _get_list_datas($limit, $offset, $where = array(), $order = array('field'=>'id', 'by'=>'DESC'))
+    {
+        $obj = new SystemUsersModel;
+        $query = DB::table($obj->table . ' as pk');
+        $query->select('pk.*', 'fk.role_name');
+        $query->leftJoin('system_roles as fk', 'pk.role_id', '=', 'fk.id');
         if(isset($where['key']) && $where['key']) {
             $like = "%" . $where['key'] ."%";
-            $query->where($this->table.'.username', 'LIKE', $like);
-            $query->orWhere($this->table.'.email', 'LIKE', $like);
+            $query->where('pk.username', 'LIKE', $like);
+            $query->orWhere('pk.email', 'LIKE', $like);
         }
 
         if(isset($where['date_range']) && $where['date_range']) {
             $date_from = strtotime(date('Ymd H:i:s',strtotime($where['date_range']['from'])));
             $date_to = strtotime(date('Ymd H:i:s',strtotime($where['date_range']['to'])));
-            $query->where($this->table.'.created_date', '>=', $date_from);
-            $query->where($this->table.'.created_date', '<=', $date_to);
+            $query->where('pk.created_date', '>=', $date_from);
+            $query->where('pk.created_date', '<=', $date_to);
         }
-        $query->orderBy($this->table.'.'.$order['field'], $order['by']);
+        $query->orderBy('pk.'.$order['field'], $order['by']);
 
         //get total all records
         $total = $query->count();
